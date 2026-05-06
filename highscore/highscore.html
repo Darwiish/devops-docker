@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Highscores</title>
+
+  <style>
+    * {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: #808080;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .box {
+      background: white;
+      border: 2px solid black;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px 15px;
+    }
+
+    th {
+      text-align: left;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    input {
+      padding: 6px;
+      margin-right: 5px;
+    }
+
+    button {
+      padding: 6px 10px;
+      margin-right: 5px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* remove number spinner */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    pre {
+      background: #111;
+      color: #0f0;
+      padding: 10px;
+      overflow-x: auto;
+    }
+  </style>
+
+  <script>
+    async function loadHighscores() {
+      try {
+        const res = await fetch("/highscores");
+        const data = await res.json();
+
+        const table = document.getElementById("table");
+
+        table.innerHTML = `
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th class="right">Score</th>
+          </tr>
+        `;
+
+        const medals = ["🥇", "🥈", "🥉"];
+
+        data.forEach((p, i) => {
+          const row = document.createElement("tr");
+
+          if (i === 0) row.style.background = "#ffd700";
+          if (i === 1) row.style.background = "#c0c0c0";
+          if (i === 2) row.style.background = "#cd7f32";
+
+          row.innerHTML = `
+            <td>${medals[i] || "#" + (i + 1)}</td>
+            <td>${p.name}</td>
+            <td class="right">${p.score}</td>
+          `;
+
+          table.appendChild(row);
+        });
+
+      } catch (err) {
+        console.error("Load error:", err);
+      }
+    }
+
+    async function toggleJSON() {
+      const box = document.getElementById("jsonBox");
+
+      if (box.style.display === "block") {
+        box.style.display = "none";
+        return;
+      }
+
+      const res = await fetch("/highscores");
+      const data = await res.json();
+
+      box.textContent = JSON.stringify(data, null, 2);
+      box.style.display = "block";
+    }
+
+    window.onload = () => {
+      const nameInput = document.getElementById("name");
+      const scoreInput = document.getElementById("score");
+      const submitBtn = document.getElementById("submit");
+
+      function validate() {
+        const name = nameInput.value.trim();
+        const score = Number(scoreInput.value);
+        submitBtn.disabled = !(name && score > 0);
+      }
+
+      nameInput.addEventListener("input", validate);
+      scoreInput.addEventListener("input", validate);
+
+      submitBtn.addEventListener("click", async () => {
+        const name = nameInput.value.trim();
+        const score = Number(scoreInput.value);
+
+        try {
+          const res = await fetch("/highscore", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, score })
+          });
+
+          if (res.status === 201) {
+            nameInput.value = "";
+            scoreInput.value = "";
+            submitBtn.disabled = true;
+            loadHighscores();
+          } else {
+            alert("Failed to submit");
+          }
+
+        } catch (err) {
+          console.error("Submit error:", err);
+        }
+      });
+
+      document.getElementById("clear").addEventListener("click", async () => {
+        if (!confirm("Delete all scores?")) return;
+        await fetch("/highscores", { method: "DELETE" });
+        loadHighscores();
+      });
+
+      document.getElementById("viewJson").addEventListener("click", toggleJSON);
+
+      validate();
+      loadHighscores();
+    };
+  </script>
+</head>
+
+<body>
+
+  <div class="box">
+    <button id="viewJson">View JSON</button>
+  </div>
+
+  <h1>Highscores</h1>
+
+  <div class="box">
+    <table id="table"></table>
+  </div>
+
+  <div class="box">
+    <input type="text" id="name" placeholder="Name" />
+    <input type="number" id="score" placeholder="Score" min="1" />
+    <button id="submit" disabled>Submit</button>
+    <button id="clear">Delete All</button>
+  </div>
+
+  <div class="box">
+    <pre id="jsonBox" style="display:none;"></pre>
+  </div>
+
+</body>
+</html>
