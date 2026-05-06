@@ -1,64 +1,46 @@
-A Highscore Server
-==================
+# Highscore DevOps Project
 
-Implement a highscore server in Node.js in `server.js`.
+This is a Node.js Highscore API Server containerized with Docker that stores the top 10 scores in memory without using a database and exposes a REST API for managing highscores while demonstrating DevOps practices including Docker containerization, CI/CD flow, and AWS EC2 deployment readiness. The purpose of this project is to build a REST API using Node.js and package it with Docker to ensure consistent environments and prepare it for automated deployment pipelines.
 
-Your server should record the (up to) 10 best scores
-(in memory - **do not attempt to set up a database**).
+The application provides features such as in-memory highscore storage, a top 10 leaderboard system, the ability to add new scores via API, delete all scores, and serve a frontend HTML page.
 
-Your server should listen on port 8080 and it should support 4 endpoints:
-- A GET request to `/` should respond with (the contents of) [highscore.html](highscore.html)
-- A GET request to `/highscores` should return a JSON response of the registered highscores:
-  ```
-  [ { "name"  : "FragMeister", "score" : 770 },
-    { "name"  : "Anders And", "score" : 650 },
-    { "name"  : "MetteF", "score" : 450 },
-    { "name"  : "Jan", "score" : 25 }
-  ]
-  ```
-  The server should respond with at most 10 entries
-  and the highscores should be listed in a sorted order (highest score first).
+The API includes:
+GET `/` which returns `highscore.html`,  
+GET `/api/highscores` which returns a JSON list of players and scores,  
+POST `/api/highscore` which accepts a player name and score where the score must be greater than 0 and only the top 10 scores are stored otherwise it returns a 400 Bad Request while valid submissions return 201 Created,  
+DELETE `/api/highscores` which clears all stored data and returns an empty list.
 
-- A DELETE request to `/highscores` should empty the recorded highscore list
-
-- A POST request to `/highscore` with body
-  ```
-    { "name" : "TonnyRulez", "score" : 330 }
-  ```
-  should update the server's state and return `201 Created`
-  so that a later GET request to `/highscores` includes the score. 
-  
-  However, POST'ing a zero or negative score or a score too low to make the top-10 list should return a `400 Bad Request`.
-
-  If a POST'ed score is equal to a previous one, the previous one keeps its position and is listed first.  
-
-
-Example run
------------
-
-Here is an example of a `curl` interaction:
-```
- $ curl http://localhost:8080/highscores
- []
- $ curl -X POST -d '{ "name":"TonnyRulez", "score":220 }' -H "Content-type: application/json" http://localhost:8080/highscore
- $ curl -X POST -d '{ "name":"MetteF", "score":110 }' -H "Content-type: application/json" http://localhost:8080/highscore
- $ curl -X POST -d '{ "name":"Jan", "score":25 }' -H "Content-type: application/json" http://localhost:8080/highscore
- $ curl http://localhost:8080/highscores
- [{"name":"TonnyRulez","score":220},{"name":"MetteF","score":110},{"name":"Jan","score":25}] 
- $ curl -X DELETE http://localhost:8080/highscores
- $ curl http://localhost:8080/highscores
- []
+```json
+[
+  { "player": "Alex", "score": 900 },
+  { "player": "DevOps", "score": 800 }
+]
 ```
 
-Project details
----------------
+```json
+{ "player": "User", "score": 500 }
+```
 
-Install the required packages by running `npm install`.
+Docker is used to containerize the application so it runs consistently across all environments without manual setup and eliminates environment differences. The build process uses:
 
-You are welcome to use additional NPM packages as you see fit.
-If your code depends on additional NPM packages, add them to [package.json](package.json)
-and commit your changes.
+```bash
+docker build -t highscore-app .
+```
 
-You can test your server implementation by running `npm test`. Your server should be able to start by simply running `node server.js`.
+and the container is run using:
 
-Your server's JSON should also work together with the HTML page [highscore.html](highscore.html) served by `/` on http://localhost:8080/.
+```bash
+docker run -p 3000:3000 highscore-app
+```
+
+The CI/CD flow follows a pipeline where GitHub triggers a build process, Docker creates an image, and the application is deployed to an AWS EC2 instance where it runs inside a Linux environment using Docker Engine with Node.js inside the container exposing port 3000 for public access.
+
+For local development the project can be installed and tested using:
+
+```bash
+npm install
+npm test
+node server.js
+```
+
+This project demonstrates a complete DevOps workflow combining backend development, containerization, CI/CD automation, and cloud deployment into a single production-style application that is portable, scalable, and deployment-ready.
