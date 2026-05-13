@@ -12,11 +12,12 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   web:
-    build: .
+    image: 224084343617.dkr.ecr.eu-north-1.amazonaws.com/myapp:latest
     ports:
       - "5002:5002"
     depends_on:
-      - mydb
+      mydb:
+        condition: service_healthy
