@@ -152,7 +152,7 @@ Request 4 → web-1 (starts over)
 
 ## Screenshots
 
-###Home Page
+### Home Page
 Shows the Flask welcome page served through Nginx.
 ![Home Page](screenshots/RedisCounterHome.png)
 
