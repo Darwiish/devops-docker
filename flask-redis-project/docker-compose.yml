@@ -6,7 +6,20 @@ services:
     ports:
       - "5002:5002"
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy  # wait for Redis to be healthy before starting Flask
+    restart: unless-stopped  # restart Flask if it crashes
 
   redis:
     image: redis:alpine
+    volumes:
+      - redis_data:/data  # mount named volume to persist Redis data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]  # check if Redis is responsive
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped  # restart Redis if it crashes
+
+volumes:
+  redis_data:  # named volume definition
