@@ -306,7 +306,6 @@ mysql -u root -p
 
 ### AWS ECR Image
 ![ECR Image](screenshots/ecr-image.png)
-### AWS ECR Image
 
 ---
 
