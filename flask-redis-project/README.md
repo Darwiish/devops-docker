@@ -156,8 +156,10 @@ Request 4 → web-1 (starts over)
 Shows the Flask welcome page served through Nginx.
 ![Home Page](screenshots/RedisCounterHome.png)
 
+### Visit Counter
 Shows the Redis-powered visit counter increasing across requests.
 ![Visit Counter](screenshots/RedisCounter.png)
 
+### Docker Hub Image
 Shows the Docker image pushed to Docker Hub.
 ![Docker Hub](screenshots/dockerhubRedis.png)
