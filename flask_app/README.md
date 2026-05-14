@@ -299,17 +299,13 @@ mysql -u root -p
 ## Screenshots
 
 ### Flask Application
-
-```markdown
 ![Flask App](screenshots/app-home.png)
-```
 
 ### Running Containers
-
-```markdown
 ![Docker Containers](screenshots/docker-containers.png)
-```
 
+### AWS ECR Image
+![ECR Image](screenshots/ecr-image.png)
 ### AWS ECR Image
 
 ```markdown
