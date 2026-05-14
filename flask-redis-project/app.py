@@ -1,9 +1,19 @@
 from flask import Flask
 import redis
+import os
 
 app = Flask(__name__) # Initialize the Flask application
 
-cache = redis.Redis(host='redis', port=6379, decode_responses=True) # Connect to Redis service defined in docker-compose.yml
+REDIS_HOST = os.getenv('REDIS_HOST', 'redis') # Get Redis host from environment
+REDIS_PORT = int(os.getenv('REDIS_PORT', 6379)) # Get Redis port from environment
+REDIS_DB = int(os.getenv('REDIS_DB', 0)) # Get Redis DB from environment
+
+cache = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    db=REDIS_DB,
+    decode_responses=True
+) # Initialize Redis client
 
 @app.route('/')
 def welcome():
@@ -18,7 +28,7 @@ def welcome():
 
 @app.route('/count')
 def count():
-    hits = cache.incr('visit_count') # Increment visit count atomically, creates key if it doesn't exist
+    hits = cache.incr('visit_count') # Increment visit count atomically
     return f'''
     <html>
         <body style="font-family: Arial; text-align: center; margin-top: 100px;">
@@ -30,4 +40,4 @@ def count():
     ''' # Return visit count as HTML
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5002, debug=True) # Run app on all interfaces, port 5002, debug mode on
+    app.run(host='0.0.0.0', port=5000, debug=True) # Run app on all interfaces, port 5002

@@ -10,6 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Then copy the rest of the application code
 COPY . .
 
-EXPOSE 5002
+EXPOSE 5000
 
 CMD ["python", "app.py"]
