@@ -308,10 +308,6 @@ mysql -u root -p
 ![ECR Image](screenshots/ecr-image.png)
 ### AWS ECR Image
 
-```markdown
-![ECR Image](screenshots/ecr-image.png)
-```
-
 ---
 
 ## Example Output
