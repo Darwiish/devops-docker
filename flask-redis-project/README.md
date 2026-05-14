@@ -16,13 +16,17 @@ Browser → localhost:5002 → Nginx (load balancer) → Flask instance 1
 
 ```
 flask-redis-project/
-├── app.py               # Flask application
-├── Dockerfile           # Flask container image
-├── docker-compose.yml   # Multi-container setup
-├── nginx.conf           # Nginx load balancer config
-├── requirements.txt     # Python dependencies
-├── .env                 # Environment variables
-└── README.md
+├── app.py
+├── Dockerfile
+├── docker-compose.yml
+├── nginx.conf
+├── requirements.txt
+├── .env
+├── README.md
+└── screenshots/
+    ├── RedisCounterHome.png
+    ├── RedisCounter.png
+    └── dockerhubRedis.png
 ```
 
 ## Services
@@ -145,3 +149,14 @@ Request 2 → web-2
 Request 3 → web-3
 Request 4 → web-1 (starts over)
 ```
+
+## Screenshots
+
+Shows the Flask welcome page served through Nginx.
+![Home Page](screenshots/RedisCounterHome.png)
+
+Shows the Redis-powered visit counter increasing across requests.
+![Visit Counter](screenshots/RedisCounter.png)
+
+Shows the Docker image pushed to Docker Hub.
+![Docker Hub](screenshots/dockerhubRedis.png)
