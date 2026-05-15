@@ -1,4 +1,4 @@
-# 🚀 Highscore DevOps Project (Docker + PostgreSQL)
+#  Highscore DevOps Project (Docker + PostgreSQL)
 
 This project is a fully containerized backend application built with Node.js, Express, PostgreSQL, and Docker. It started as a simple in-memory highscore API and was later upgraded into a production-style DevOps project with database persistence, Docker Compose, and cloud-ready architecture. The main goal is to demonstrate real-world DevOps practices such as containerization, persistent storage, REST API design, debugging workflows, and deployment readiness.
 
