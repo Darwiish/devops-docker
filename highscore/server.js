@@ -1,66 +1,93 @@
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
+require("dotenv").config();
+
+const pool = require("./db");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-let highscores = [];
+/* -------------------------
+   FRONTEND PAGES
+--------------------------*/
 
 // Home page
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "highscore.html"));
 });
 
-// JSON view page
+// View page
 app.get("/highscores-view", (req, res) => {
   res.sendFile(path.join(__dirname, "highscores-view.html"));
 });
 
-// GET top 10
-app.get("/highscores", (req, res) => {
-  const topScores = [...highscores]
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10);
+/* -------------------------
+   HEALTH CHECK
+--------------------------*/
 
-  res.json(topScores);
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK" });
 });
 
-app.post('/highscore', (req, res) => {
+/* -------------------------
+   HIGH SCORES API
+--------------------------*/
+
+// GET top 10 scores
+app.get("/highscores", async (req, res) => {
   try {
-    console.log("BODY:", req.body);
+    const result = await pool.query(
+      "SELECT * FROM highscores ORDER BY score DESC LIMIT 10"
+    );
 
-    const name = req.body.name;
-    const score = req.body.score;
-
-    if (!name || typeof score !== 'number' || score <= 0) {
-      return res.status(400).send('Invalid data');
-    }
-
-    highscores.push({ name: name, score: score });
-
-    highscores.sort((a, b) => b.score - a.score);
-
-    if (highscores.length > 10) {
-      highscores = highscores.slice(0, 10);
-    }
-
-    res.status(201).json({ name: name, score: score });
-
+    res.json(result.rows);
   } catch (err) {
-    console.error("SERVER ERROR:", err);
-    res.status(500).send("Server crashed");
+    console.error(err);
+    res.status(500).send("DB error");
   }
 });
-// DELETE all
-app.delete("/highscores", (req, res) => {
-  highscores = [];
-  res.sendStatus(200);
+
+// POST new score
+app.post("/highscore", async (req, res) => {
+  try {
+    const { name, score } = req.body;
+
+    if (!name || typeof score !== "number" || score <= 0) {
+      return res.status(400).send("Invalid data");
+    }
+
+    const result = await pool.query(
+      "INSERT INTO highscores (name, score) VALUES ($1, $2) RETURNING *",
+      [name, score]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
-// START
+// DELETE all scores
+app.delete("/highscores", async (req, res) => {
+  try {
+    await pool.query("DELETE FROM highscores");
+    res.sendStatus(200);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
+});
+
+/* -------------------------
+   START SERVER
+--------------------------*/
+
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
